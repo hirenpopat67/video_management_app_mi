@@ -1,0 +1,33 @@
+version: '3.8'
+services:
+  fastapi_video_mi:
+    build: .
+    command: uvicorn runserver:app --host 0.0.0.0 --port 8000
+    ports:
+      - "8000:8000"
+    depends_on:
+      - postgres
+      - redis
+    restart: always
+  redis:
+    image: redis:7.2.3-alpine
+    ports:
+      - 6379:6379
+  postgres:
+    image: postgres:16
+    restart: unless-stopped
+    ports: ["5432:5432"]
+    env_file: ./.env
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    env_file: ./.env
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
+    ports:
+      - "5050:80"
+    restart: unless-stopped
